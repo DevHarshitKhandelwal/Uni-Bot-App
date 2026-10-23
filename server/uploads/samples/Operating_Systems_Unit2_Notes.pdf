@@ -1,0 +1,47 @@
+================================================================================
+OPERATING SYSTEMS — UNIT 2 STUDY NOTES
+Process Scheduling, Threading, and Deadlock Avoidance
+Author: Faculty Department of Computer Science & Engineering
+Course Code: CS401
+================================================================================
+
+1. CPU SCHEDULING ALGORITHMS
+--------------------------------------------------------------------------------
+- First-Come, First-Served (FCFS):
+  * Non-preemptive. Suffers from the "Convoy Effect" where short processes wait
+    behind long CPU-burst processes.
+- Shortest Job First (SJF / SRTF):
+  * Provably optimal for minimizing average waiting time.
+  * Difficulty lies in knowing the length of the next CPU burst.
+- Round Robin (RR):
+  * Preemptive algorithm designed for time-sharing systems.
+  * A time quantum (q) typically between 10ms and 100ms is assigned.
+  * If q is too large, RR behaves like FCFS. If q is too small, context-switch
+    overhead dominates CPU time.
+
+2. DEADLOCK PREVENTION & AVOIDANCE
+--------------------------------------------------------------------------------
+Coffman's Four Necessary Conditions for Deadlock:
+  1. Mutual Exclusion: At least one resource must be held in a non-shareable mode.
+  2. Hold and Wait: A process must be holding at least one resource and waiting
+     to acquire additional resources held by other processes.
+  3. No Preemption: Resources cannot be preempted; a resource can be released
+     only voluntarily by the process holding it.
+  4. Circular Wait: A closed chain of processes exists such that each process
+     holds at least one resource needed by the next process in the chain.
+
+Banker's Algorithm:
+  - Applicable to systems with multiple instances of each resource type.
+  - Data Structures:
+      * Available[m]: Vector of available resources of type j.
+      * Max[n][m]: Maximum demand of each process i for resource j.
+      * Allocation[n][m]: Currently allocated resources to process i.
+      * Need[n][m]: Remaining resource need, where Need[i][j] = Max[i][j] - Allocation[i][j].
+  - Safety Algorithm:
+      Finds if there exists a safe sequence <P0, P1, ..., Pn-1> where each process
+      can satisfy its maximum demand using current available resources plus those
+      held by preceding processes.
+
+================================================================================
+Generated for UniBot Academic Resource Hub
+================================================================================

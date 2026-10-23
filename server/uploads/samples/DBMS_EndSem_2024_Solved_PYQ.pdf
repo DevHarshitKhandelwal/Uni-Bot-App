@@ -1,0 +1,30 @@
+================================================================================
+DBMS END-SEMESTER EXAMINATION 2024 — MODEL SOLUTIONS
+Course: CS402 | Database Management Systems
+================================================================================
+
+QUESTION 1: ACID Properties in Distributed Transactions
+--------------------------------------------------------------------------------
+Explain Atomicity, Consistency, Isolation, and Durability in WAL (Write-Ahead Logging).
+Solution:
+- Atomicity: Ensured through the undo phase of ARIES recovery.
+- Consistency: Maintained via database schema integrity constraints and triggers.
+- Isolation: Enforced using Two-Phase Locking (2PL) or Multiversion Concurrency Control (MVCC).
+- Durability: Redo log records committed to non-volatile disk before ACK is sent.
+
+QUESTION 2: Normalization & BCNF Decomposition
+--------------------------------------------------------------------------------
+Given Schema R(A, B, C, D, E) with Functional Dependencies:
+  F = { A -> B, BC -> D, D -> E }
+1. Candidate Key:
+   Attribute closure of (A, C):
+   (A,C)+ = {A, C, B, D, E} = R
+   Therefore, AC is the primary Candidate Key.
+2. Violation of BCNF:
+   In FD A -> B, A is not a superkey. Therefore R is not in BCNF.
+3. Decomposition:
+   R1(A, B) with key A.
+   R2(A, C, D, E) with FDs { AC -> D, D -> E }.
+   In R2, D -> E violates BCNF.
+   Decompose R2 into R2a(D, E) and R2b(A, C, D).
+   Final BCNF schema: { (A,B), (D,E), (A,C,D) }. All decompositions are lossless.

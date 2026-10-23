@@ -1,0 +1,29 @@
+================================================================================
+COMPUTER NETWORKS CHEATSHEET & PROTOCOL REFERENCE
+Course: CS403 | Department of Computer Science
+================================================================================
+
+1. CIDR SUBNETTING CHEATSHEET
+--------------------------------------------------------------------------------
+/24 -> 256 IPs  (254 hosts) | Mask: 255.255.255.0
+/25 -> 128 IPs  (126 hosts) | Mask: 255.255.255.128
+/26 -> 64 IPs   (62 hosts)  | Mask: 255.255.255.192
+/27 -> 32 IPs   (30 hosts)  | Mask: 255.255.255.224
+/28 -> 16 IPs   (14 hosts)  | Mask: 255.255.255.240
+
+2. TCP THREE-WAY HANDSHAKE & TEARDOWN
+--------------------------------------------------------------------------------
+Connection Establishment:
+  Client                     Server
+    | ---- SYN (seq=x) ---->   |
+    | <--- SYN-ACK (ack=x+1) - |
+    | ---- ACK (ack=y+1) --->  |
+
+Connection Teardown:
+  Client sends FIN -> Server sends ACK -> Server sends FIN -> Client sends ACK.
+
+3. SLIDING WINDOW & FLOW CONTROL
+--------------------------------------------------------------------------------
+- Go-Back-N (GBN): Sender can transmit up to N unacknowledged frames.
+  Sender window size = 2^k - 1. Receiver window size = 1.
+- Selective Repeat (SR): Both sender and receiver maintain window size = 2^(k-1).

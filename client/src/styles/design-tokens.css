@@ -1,0 +1,172 @@
+:root {
+  /* ==========================================================================
+     User Specified 4-Color Palette:
+     #E3F2FD (Ice Sky Blue)
+     #90CAF9 (Soft Sky Tint)
+     #2196F3 (Vibrant Mac Electric Blue)
+     #0D47A1 (Deep Midnight Navy Contrast)
+     ========================================================================== */
+  --palette-ice: #E3F2FD;
+  --palette-sky: #90CAF9;
+  --palette-blue: #2196F3;
+  --palette-navy: #0D47A1;
+
+  /* Aliases to ensure complete compatibility with components */
+  --palette-cream: #F0F7FD;
+  --palette-blush: #E3F2FD;
+  --palette-peach: #D7ECFD;
+  --palette-rose: #90CAF9;
+
+  /* Surfaces & Translucent Mica Glass */
+  --bg-canvas: #F0F7FD;
+  --bg-canvas-gradient: linear-gradient(135deg, #E3F2FD 0%, #F5FAFF 45%, #E8F4FD 100%);
+  --bg-surface: #FFFFFF;
+  --bg-subtle: #E3F2FD;
+  --bg-subtle-hover: #D7ECFD;
+  --bg-active: rgba(33, 150, 243, 0.12);
+  --bg-frosted: rgba(227, 242, 253, 0.85);
+  --bg-frosted-white: rgba(255, 255, 255, 0.88);
+  --bg-glass-card: rgba(255, 255, 255, 0.85);
+  --bg-dock: rgba(255, 255, 255, 0.82);
+  --bg-dock-border: rgba(144, 202, 249, 0.6);
+
+  /* High-Contrast, Accessible Typography */
+  --text-main: #0B2545;
+  --text-dark: #0D47A1;
+  --text-muted: #385A7C;
+  --text-faint: #6C8CAE;
+  --text-inverse: #FFFFFF;
+
+  /* Borders & Focus Rings */
+  --border-light: rgba(144, 202, 249, 0.5);
+  --border-sky: #90CAF9;
+  --border-strong: rgba(33, 150, 243, 0.35);
+  --border-focus: #2196F3;
+  --focus-ring: 0 0 0 3px rgba(33, 150, 243, 0.25);
+
+  /* Primary Brand Buttons & Accents */
+  --primary-navy: #0D47A1;
+  --primary-navy-hover: #093478;
+  --primary-navy-light: #E3F2FD;
+
+  --primary-blue: #2196F3;
+  --primary-blue-hover: #1976D2;
+  --primary-blue-light: rgba(33, 150, 243, 0.12);
+
+  --accent-sage: #10B981;
+  --accent-sage-light: #ECFDF5;
+  --accent-amber: #F59E0B;
+  --accent-amber-light: #FFFBEB;
+  --accent-terracotta: #EF4444;
+  --accent-terracotta-light: #FEF2F2;
+
+  /* Window Control Dots */
+  --traffic-red: #FF5F56;
+  --traffic-yellow: #FFBD2E;
+  --traffic-green: #27C93F;
+  --mac-traffic-red: #FF5F56;
+  --mac-traffic-yellow: #FFBD2E;
+  --mac-traffic-green: #27C93F;
+
+  /* Typography */
+  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-serif: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Plus Jakarta Sans", sans-serif;
+  --font-mono: "SF Mono", Menlo, Monaco, Consolas, "JetBrains Mono", monospace;
+
+  /* Elevation Shadows & Depth */
+  --shadow-sm: 0 1px 3px rgba(13, 71, 161, 0.05);
+  --shadow-md: 0 4px 14px rgba(13, 71, 161, 0.08), 0 1px 3px rgba(13, 71, 161, 0.04);
+  --shadow-lg: 0 18px 42px -6px rgba(13, 71, 161, 0.15), 0 4px 14px -2px rgba(13, 71, 161, 0.06);
+  --mac-window-shadow: 0 24px 64px rgba(13, 71, 161, 0.14), 0 4px 18px rgba(13, 71, 161, 0.07);
+  --dock-shadow: 0 14px 34px rgba(13, 71, 161, 0.16), 0 2px 8px rgba(13, 71, 161, 0.08);
+
+  --radius-xs: 6px;
+  --radius-sm: 9px;
+  --radius-md: 13px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-ui);
+  background: var(--bg-canvas-gradient);
+  background-attachment: fixed;
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+/* Subtle physical paper/desktop shimmer texture */
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background-image: radial-gradient(rgba(144, 202, 249, 0.25) 1px, transparent 1px);
+  background-size: 28px 28px;
+  opacity: 0.6;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, .font-serif {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--text-main);
+}
+
+.container {
+  width: 100%;
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+button {
+  font-family: var(--font-ui);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+input, textarea, select {
+  font-family: var(--font-ui);
+  outline: none;
+}
+
+/* Apple-style slick scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(227, 242, 253, 0.4);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(144, 202, 249, 0.8);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-blue);
+}

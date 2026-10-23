@@ -1,0 +1,17 @@
+================================================================================
+DATA STRUCTURES & ALGORITHMS LABORATORY MANUAL
+Course: CS301 | 12 Practical Experiments
+================================================================================
+
+Experiment 1: Infix to Postfix Conversion using Stacks
+Experiment 2: Circular Queue Implementation with Dynamic Resizing
+Experiment 3: Binary Search Tree (BST) Insertion, Deletion & AVL Balancing
+Experiment 4: Min/Max Heap and Heapsort Algorithm
+Experiment 5: Graph Representation (Adjacency Matrix vs List)
+Experiment 6: Dijkstra's Single Source Shortest Path Algorithm
+Experiment 7: Prim's and Kruskal's Minimum Spanning Tree (MST)
+Experiment 8: Dynamic Programming: 0/1 Knapsack Problem
+Experiment 9: Longest Common Subsequence (LCS) Implementation
+Experiment 10: Trie Data Structure for Fast Autocomplete
+
+Source code implementations are provided in C++ standard 17 with memory cleanup.
