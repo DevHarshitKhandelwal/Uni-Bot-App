@@ -6,7 +6,7 @@ import { ResourceHubPage } from './pages/ResourceHubPage.jsx';
 import { VaultPage } from './pages/VaultPage.jsx';
 import { StudyBotPage } from './pages/StudyBotPage.jsx';
 import { AdminPage } from './pages/AdminPage.jsx';
-import { GraduationCap, Heart, BookOpen, ShieldCheck, Github } from 'lucide-react';
+import { GraduationCap, ShieldCheck } from 'lucide-react';
 
 export const App = () => {
   const [activeTab, setActiveTab] = useState('resources'); // 'resources' | 'vault' | 'studybot'
@@ -19,10 +19,12 @@ export const App = () => {
 
         {/* Main Application Body */}
         <main className="page-container">
-          {activeTab === 'resources' && <ResourceHubPage />}
-          {activeTab === 'vault' && <VaultPage />}
-          {activeTab === 'studybot' && <StudyBotPage />}
-          {activeTab === 'admin' && <AdminPage />}
+          <div className="page-transition" key={activeTab}>
+            {activeTab === 'resources' && <ResourceHubPage />}
+            {activeTab === 'vault' && <VaultPage />}
+            {activeTab === 'studybot' && <StudyBotPage />}
+            {activeTab === 'admin' && <AdminPage />}
+          </div>
         </main>
 
         {/* Global Auth Modal */}
