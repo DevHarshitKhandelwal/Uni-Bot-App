@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from src.embeddings import RateLimitedEmbeddings
+from src.embeddings import EmbeddingQuotaError, RateLimitedEmbeddings
 
 
 class FakeEmbeddings:
@@ -63,6 +63,22 @@ class RateLimitedEmbeddingsTests(unittest.TestCase):
                 embeddings.embed_documents(["one"])
 
         self.assertEqual(len(provider.calls), 1)
+
+    def test_long_quota_wait_is_deferred_without_sleeping(self):
+        class QuotaLimitedEmbeddings(FakeEmbeddings):
+            def embed_documents(self, texts, batch_size):
+                self.calls.append((texts, batch_size))
+                raise RuntimeError("429 RESOURCE_EXHAUSTED retry in 76739s")
+
+        provider = QuotaLimitedEmbeddings()
+        embeddings = RateLimitedEmbeddings(provider, requests_per_minute=75)
+
+        with patch("src.embeddings.time.sleep") as sleep:
+            with self.assertRaises(EmbeddingQuotaError) as context:
+                embeddings.embed_documents(["one"])
+
+        self.assertEqual(context.exception.retry_after_seconds, 76740.0)
+        sleep.assert_not_called()
 
 
 if __name__ == "__main__":

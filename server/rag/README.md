@@ -10,6 +10,8 @@ to choose another supported model. Embeddings default to `models/gemini-embeddin
 and can be configured through `GEMINI_EMBEDDING_MODEL`. Embedding requests are batched,
 limited to 75 requests per minute, and retried on Gemini quota responses. Free-tier
 availability still depends on the Google AI Studio account and selected models.
+The HTTP service starts independently of index construction. `/health` reports
+`ready: false` and `retryAfterSeconds` when indexing must wait for quota to reset.
 
 Start the application with `docker compose up --build`. The Node backend sends chatbot
 requests to the RAG service over the Compose network. `/api/health` reports whether the

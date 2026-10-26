@@ -7,6 +7,12 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from src.config import GEMINI_EMBEDDING_MODEL
 
 
+class EmbeddingQuotaError(RuntimeError):
+    def __init__(self, message, retry_after_seconds):
+        super().__init__(message)
+        self.retry_after_seconds = retry_after_seconds
+
+
 class RateLimitedEmbeddings(Embeddings):
     def __init__(
         self,
@@ -14,11 +20,13 @@ class RateLimitedEmbeddings(Embeddings):
         batch_size=32,
         requests_per_minute=75,
         max_retries=5,
+        max_inline_retry_delay=120,
     ):
         self.embeddings = embeddings
         self.batch_size = batch_size
         self.request_interval = 60 / requests_per_minute
         self.max_retries = max_retries
+        self.max_inline_retry_delay = max_inline_retry_delay
         self._request_lock = Lock()
         self._next_request_at = 0.0
 
@@ -55,8 +63,18 @@ class RateLimitedEmbeddings(Embeddings):
                 return callback()
             except Exception as error:
                 retry_delay = self._quota_retry_delay(error)
-                if retry_delay is None or attempt == self.max_retries - 1:
+                if retry_delay is None:
                     raise
+                if retry_delay > self.max_inline_retry_delay:
+                    raise EmbeddingQuotaError(
+                        "Gemini embedding quota is exhausted; indexing is deferred.",
+                        retry_delay,
+                    ) from error
+                if attempt == self.max_retries - 1:
+                    raise EmbeddingQuotaError(
+                        "Gemini embedding quota is exhausted after retries.",
+                        retry_delay,
+                    ) from error
                 print(
                     f"[RAG] Gemini embedding quota reached; retrying in "
                     f"{retry_delay:.1f}s (attempt {attempt + 1}/{self.max_retries - 1}).",
