@@ -7,8 +7,9 @@ FAISS index on startup. Docker Compose keeps the index in the `rag_vectorstore` 
 
 The chat model defaults to `gemini-3.5-flash-lite`; set `GEMINI_CHAT_MODEL` in `server/.env`
 to choose another supported model. Embeddings default to `models/gemini-embedding-001`
-and can be configured through `GEMINI_EMBEDDING_MODEL`. Gemini API free-tier quotas and
-availability depend on the Google AI Studio account and selected models.
+and can be configured through `GEMINI_EMBEDDING_MODEL`. Embedding requests are batched,
+limited to 75 requests per minute, and retried on Gemini quota responses. Free-tier
+availability still depends on the Google AI Studio account and selected models.
 
 Start the application with `docker compose up --build`. The Node backend sends chatbot
 requests to the RAG service over the Compose network. `/api/health` reports whether the
