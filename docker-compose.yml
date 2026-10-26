@@ -25,7 +25,7 @@ services:
   rag:
     build:
       context: .
-      dockerfile: server/rag/Dockerfile
+      dockerfile: Dockerfile
     env_file:
       - server/.env
     environment:

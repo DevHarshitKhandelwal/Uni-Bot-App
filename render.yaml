@@ -3,7 +3,7 @@ services:
     name: unibot-rag
     runtime: docker
     plan: free
-    dockerfilePath: ./server/rag/Dockerfile
+    dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /health
     envVars:
