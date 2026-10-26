@@ -1,0 +1,11 @@
+.git
+**/.git
+**/node_modules
+**/.env
+**/.env.*
+!**/.env.example
+**/dist
+**/build
+**/coverage
+client/android
+rag/Uni-Bot

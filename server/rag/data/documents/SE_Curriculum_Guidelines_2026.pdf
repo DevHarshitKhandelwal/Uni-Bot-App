@@ -1,0 +1,15 @@
+================================================================================
+SOFTWARE ENGINEERING CURRICULUM GUIDELINES & PROJECT RUBRIC
+Course: CS404 | Academic Year 2026
+================================================================================
+
+1. Evaluation Criteria:
+   - SRS Document & Architecture: 20%
+   - Sprint Deliverables & Git Commit History: 30%
+   - Unit Test Coverage (>80% required): 20%
+   - Final Demo & Code Review: 30%
+
+2. Core Recommended Methodologies:
+   - Scrum Framework with 2-week Sprint cycles
+   - Test-Driven Development (TDD)
+   - CI/CD workflow with GitHub Actions

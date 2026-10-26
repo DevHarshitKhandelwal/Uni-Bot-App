@@ -1,0 +1,22 @@
+================================================================================
+OPERATING SYSTEMS ASSIGNMENT 2 PROBLEM STATEMENT
+Course: CS401 | Due in 5 Days
+================================================================================
+
+Objective:
+Simulate CPU Scheduling in C or C++. Implement the Round Robin algorithm with
+configurable time quantum `q`.
+
+Input Format:
+- Line 1: Integer N (number of processes), Integer Q (time quantum).
+- Next N lines: ProcessID, ArrivalTime, BurstTime.
+
+Output Format:
+- Gantt Chart printed to terminal.
+- Process execution order.
+- Turnaround Time (TAT) and Waiting Time (WT) per process.
+- Average TAT and Average WT.
+
+Submission Requirements:
+- Source code in `.cpp` or `.c`.
+- PDF report with benchmark tables and screenshot of 3 edge-case tests.

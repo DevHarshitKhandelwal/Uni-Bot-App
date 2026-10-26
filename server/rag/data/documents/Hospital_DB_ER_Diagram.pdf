@@ -1,0 +1,15 @@
+================================================================================
+HOSPITAL MANAGEMENT SYSTEM — ENTITY RELATIONSHIP SPECIFICATION
+Course: CS402 | Database Systems Assignment 1
+================================================================================
+
+Entities & Attributes:
+1. PATIENT (PatientID [PK], FullName, DateOfBirth, Gender, ContactNumber, EmergencyContact)
+2. DOCTOR (DoctorID [PK], FullName, Specialization, LicenseNumber, DepartmentID [FK])
+3. DEPARTMENT (DepartmentID [PK], DeptName, FloorNumber, HeadDoctorID [FK])
+4. APPOINTMENT (AppointmentID [PK], PatientID [FK], DoctorID [FK], Date, Time, Status)
+5. PRESCRIPTION (PrescriptionID [PK], AppointmentID [FK], MedicationDetails, Dosage)
+
+Constraints:
+- Foreign keys with ON DELETE CASCADE for appointments when patient is deregistered.
+- BCNF satisfied for all functional dependencies.

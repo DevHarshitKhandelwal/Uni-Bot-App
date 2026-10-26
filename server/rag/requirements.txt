@@ -1,0 +1,13 @@
+langchain
+langchain-community
+langchain-core
+langchain-text-splitters
+langchain-google-genai
+faiss-cpu
+rank-bm25
+pypdf
+pdfplumber
+docx2txt
+fastapi
+uvicorn[standard]
+python-dotenv

@@ -20,3 +20,5 @@ docker-compose.override.yml
 .dockerignore
 # OS files
 Thumbs.db
+# Local checkout retained for migration; deployment uses server/rag instead.
+/rag/Uni-Bot/
