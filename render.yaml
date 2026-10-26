@@ -1,0 +1,57 @@
+services:
+  - type: web
+    name: unibot-rag
+    runtime: docker
+    repo: https://github.com/1kanishk/Uni-Bot.git
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GEMINI_CHAT_MODEL
+        value: gemini-3.5-flash-lite
+      - key: GEMINI_EMBEDDING_MODEL
+        value: models/gemini-embedding-001
+      - key: RAG_DATA_DIR
+        value: /app/data/documents
+      - key: RAG_VECTOR_DB_DIR
+        value: /tmp/vectorstore
+
+  - type: web
+    name: unibot-api
+    runtime: docker
+    repo: https://github.com/DevHarshitKhandelwal/Uni-Bot-App.git
+    plan: free
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: RAG_ENABLED
+        value: "true"
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: RAG_SERVICE_URL
+        fromService:
+          type: web
+          name: unibot-rag
+          property: host
+
+  - type: web
+    name: unibot-client
+    runtime: static
+    repo: https://github.com/DevHarshitKhandelwal/Uni-Bot-App.git
+    rootDir: client
+    buildCommand: npm ci && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: unibot-api
+          property: host

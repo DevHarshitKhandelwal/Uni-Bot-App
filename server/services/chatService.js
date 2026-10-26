@@ -1,6 +1,12 @@
 import { getStore } from '../data/store.js';
 
-const getRagServiceUrl = () => (process.env.RAG_SERVICE_URL || 'http://localhost:8000').replace(/\/+$/, '');
+const getRagServiceUrl = () => {
+  const configuredUrl = process.env.RAG_SERVICE_URL || 'http://localhost:8000';
+  const normalizedUrl = /^https?:\/\//i.test(configuredUrl)
+    ? configuredUrl
+    : `https://${configuredUrl}`;
+  return normalizedUrl.replace(/\/+$/, '');
+};
 
 const requestRag = async (path, options = {}, timeoutMs = 5000) => {
   try {

@@ -1,4 +1,12 @@
-const API_BASE = import.meta.env.VITE_API_BASE_URL || '/api';
+const configuredApiBase = import.meta.env.VITE_API_BASE_URL;
+const configuredApiOrigin = configuredApiBase
+  ? (/^https?:\/\//i.test(configuredApiBase)
+      ? configuredApiBase
+      : `https://${configuredApiBase}`)
+    .replace(/\/+$/, '')
+    .replace(/\/api$/i, '')
+  : '';
+const API_BASE = configuredApiOrigin ? `${configuredApiOrigin}/api` : '/api';
 
 const getHeaders = (isFormData = false) => {
   const token = localStorage.getItem('unibot_token');
