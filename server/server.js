@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes.js';
 import resourceRoutes from './routes/resourceRoutes.js';
 import assignmentRoutes from './routes/assignmentRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
+import adminRoutes from './routes/adminRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { getRagStatus } from './services/chatService.js';
 
@@ -20,6 +21,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+app.set('trust proxy', 1);
 
 // Connect Database (with automatic fallback to memory store)
 connectDB();
@@ -44,6 +46,8 @@ app.get('/api/health', async (req, res) => {
     ragReady: ragStatus.ready,
     ragCurrentMode: ragStatus.mode,
     ragMessage: ragStatus.message,
+    ragRetrievalMode: ragStatus.retrievalMode,
+    ragQuotaStatus: ragStatus.quotaStatus,
     timestamp: new Date(),
   });
 });
@@ -53,6 +57,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/resources', resourceRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Error Handling Middleware
 app.use(errorHandler);

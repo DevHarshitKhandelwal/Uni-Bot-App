@@ -24,6 +24,22 @@ export const requireAuth = (req, res, next) => {
   }
 };
 
+export const requireAdmin = (req, res, next) => {
+  if (!process.env.JWT_SECRET) {
+    return res.status(503).json({
+      success: false,
+      message: 'Admin authentication is not configured securely on the server.',
+    });
+  }
+  if (req.user?.role !== 'admin') {
+    return res.status(403).json({
+      success: false,
+      message: 'Administrator access is required.',
+    });
+  }
+  next();
+};
+
 export const optionalAuth = (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;

@@ -5,6 +5,7 @@ import { AuthModal } from './components/common/AuthModal.jsx';
 import { ResourceHubPage } from './pages/ResourceHubPage.jsx';
 import { VaultPage } from './pages/VaultPage.jsx';
 import { StudyBotPage } from './pages/StudyBotPage.jsx';
+import { AdminPage } from './pages/AdminPage.jsx';
 import { GraduationCap, Heart, BookOpen, ShieldCheck, Github } from 'lucide-react';
 
 export const App = () => {
@@ -21,6 +22,7 @@ export const App = () => {
           {activeTab === 'resources' && <ResourceHubPage />}
           {activeTab === 'vault' && <VaultPage />}
           {activeTab === 'studybot' && <StudyBotPage />}
+          {activeTab === 'admin' && <AdminPage />}
         </main>
 
         {/* Global Auth Modal */}

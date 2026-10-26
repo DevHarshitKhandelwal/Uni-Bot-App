@@ -9,8 +9,16 @@ services:
     envVars:
       - key: GEMINI_API_KEY
         sync: false
+      - key: OPENAI_API_KEY
+        sync: false
       - key: GEMINI_CHAT_MODEL
         value: gemini-3.5-flash-lite
+      - key: OPENAI_MODEL
+        value: gpt-4o-mini
+      - key: DEFAULT_AI_PROVIDER
+        value: gemini
+      - key: RAG_SERVICE_TOKEN
+        generateValue: true
       - key: GEMINI_EMBEDDING_MODEL
         value: models/gemini-embedding-001
       - key: RAG_DATA_DIR
@@ -30,6 +38,10 @@ services:
         value: production
       - key: RAG_ENABLED
         value: "true"
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
       - key: MONGODB_URI
         sync: false
       - key: JWT_SECRET
@@ -39,6 +51,11 @@ services:
           type: web
           name: unibot-rag
           property: host
+      - key: RAG_SERVICE_TOKEN
+        fromService:
+          type: web
+          name: unibot-rag
+          envVarKey: RAG_SERVICE_TOKEN
 
   - type: web
     name: unibot-client

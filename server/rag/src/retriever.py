@@ -13,6 +13,8 @@ class AdvancedRetriever:
         self.bm25 = BM25Okapi([doc.page_content.lower().split() for doc in documents])
 
     def mmr_search(self, query, k):
+        if self.vectorstore is None:
+            return []
 
         retriever = self.vectorstore.as_retriever(
             search_type="mmr", search_kwargs={"k": k, "fetch_k": 60, "lambda_mult": 0.5}
@@ -55,10 +57,11 @@ class AdvancedRetriever:
 
         candidate_k = 30
 
-        mmr_results = self.mmr_search(question, candidate_k)
         bm25_results = self.bm25_search(question, candidate_k)
-
-        fused_results = self.reciprocal_rank_fusion([mmr_results, bm25_results])
+        result_lists = [bm25_results]
+        if self.vectorstore is not None:
+            result_lists.insert(0, self.mmr_search(question, candidate_k))
+        fused_results = self.reciprocal_rank_fusion(result_lists)
 
         return self.rerank(question, fused_results, top_k)
 

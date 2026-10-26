@@ -40,6 +40,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginAdmin = async (username, password) => {
+    const res = await api.admin.login(username, password);
+    if (res.success) {
+      localStorage.setItem('unibot_token', res.data.token);
+      setToken(res.data.token);
+      setUser(res.data.user);
+      return res;
+    }
+  };
+
   const register = async (formData) => {
     const res = await api.auth.register(formData);
     if (res.success) {
@@ -85,6 +95,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         isAuthenticated: !!user,
         login,
+        loginAdmin,
         register,
         demoLogin,
         logout,

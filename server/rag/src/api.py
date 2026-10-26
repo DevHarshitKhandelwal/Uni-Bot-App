@@ -2,8 +2,10 @@ from pathlib import Path
 from threading import Lock, Thread
 import time
 import os
+from typing import Literal
+from hmac import compare_digest
 
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from google.genai.errors import APIError
 from pydantic import BaseModel, Field
 
@@ -21,10 +23,13 @@ from src.vector_store import (
 
 app = FastAPI(title="UniBot RAG Service", version="1.0.0")
 _rag_chain = None
+_documents = None
+_vectorstore = None
 _rag_lock = Lock()
 _rag_error = None
 _rag_initializing = False
 _rag_retry_at = None
+_provider_status = {"gemini": "unknown", "openai": "unknown"}
 
 
 class SupplementalDocument(BaseModel):
@@ -39,6 +44,20 @@ class ChatRequest(BaseModel):
     scope: str = "all_resources"
     selectedSubject: str = ""
     supplementalContext: list[SupplementalDocument] = Field(default_factory=list)
+    provider: Literal["gemini", "openai"] = "gemini"
+
+
+def verify_rag_service_token(
+    x_rag_service_token: str | None = Header(default=None),
+):
+    expected_token = os.getenv("RAG_SERVICE_TOKEN")
+    if not expected_token:
+        raise HTTPException(
+            status_code=503,
+            detail="RAG service authentication is not configured.",
+        )
+    if not x_rag_service_token or not compare_digest(x_rag_service_token, expected_token):
+        raise HTTPException(status_code=401, detail="Invalid RAG service token.")
 
 
 def get_rag_chain():
@@ -50,7 +69,8 @@ def get_rag_chain():
 
 
 def _build_rag_chain():
-    vectorstore = load_vector_store()
+    global _documents, _vectorstore, _rag_error
+    vectorstore = load_vector_store() if os.getenv("GEMINI_API_KEY") else None
     documents = load_documents_from_vectorstore()
     if vectorstore is None or not documents:
         source_documents = load_documents(DATA_DIR)
@@ -61,26 +81,48 @@ def _build_rag_chain():
         documents = split_documents(source_documents)
         if not documents:
             raise RuntimeError("Document loading succeeded, but no chunks were created.")
-        vectorstore = create_vector_store(documents)
+        if not os.getenv("GEMINI_API_KEY"):
+            _rag_error = "Gemini embedding key is not configured; using BM25 retrieval."
+        else:
+            try:
+                vectorstore = create_vector_store(documents)
+            except EmbeddingQuotaError as error:
+                _provider_status["gemini"] = "quota_exhausted"
+                print(
+                    "[RAG] Gemini embedding quota exhausted; enabling BM25 retrieval "
+                    "until vector indexing can complete.",
+                    flush=True,
+                )
+                vectorstore = None
+                _rag_error = str(error)
 
     retriever = AdvancedRetriever(documents, vectorstore)
-    return RAGChain(retriever, get_llm())
+    _documents = documents
+    _vectorstore = vectorstore
+    return RAGChain(retriever, None)
 
 
 def _initialize_rag_in_background():
     global _rag_chain, _rag_error, _rag_initializing, _rag_retry_at
 
-    while _rag_chain is None:
+    while _vectorstore is None:
         with _rag_lock:
             _rag_initializing = True
         try:
             chain = _build_rag_chain()
             with _rag_lock:
                 _rag_chain = chain
-                _rag_error = None
+                if _vectorstore is not None:
+                    _rag_error = None
                 _rag_retry_at = None
-            print("[RAG] Knowledge base initialized successfully.", flush=True)
-            return
+            if _vectorstore is not None:
+                print("[RAG] Vector knowledge base initialized successfully.", flush=True)
+                return
+            print("[RAG] BM25 knowledge base initialized; vector indexing will retry.", flush=True)
+            raise EmbeddingQuotaError(
+                _rag_error or "Gemini embeddings are quota limited.",
+                300,
+            )
         except Exception as error:
             retry_after = (
                 error.retry_after_seconds
@@ -116,7 +158,11 @@ def initialize_rag():
 
 @app.get("/health")
 def health():
-    api_key_configured = bool(os.getenv("GEMINI_API_KEY"))
+    providers = {
+        "gemini": bool(os.getenv("GEMINI_API_KEY")),
+        "openai": bool(os.getenv("OPENAI_API_KEY")),
+    }
+    api_key_configured = any(providers.values())
     vector_index_exists = (
         (Path(VECTOR_DB_DIR) / "index.faiss").is_file()
         and (Path(VECTOR_DB_DIR) / "index.pkl").is_file()
@@ -145,20 +191,34 @@ def health():
         "message": message,
         "initializing": initializing,
         "retryAfterSeconds": retry_after_seconds,
-        "geminiKeyConfigured": api_key_configured,
+        "geminiKeyConfigured": providers["gemini"],
         "vectorIndexAvailable": vector_index_exists,
         "sourceDocumentsAvailable": documents_exist,
         "initialized": _rag_chain is not None,
+        "retrievalMode": "vector+bm25" if _vectorstore is not None else (
+            "bm25" if _rag_chain is not None else "initializing"
+        ),
+        "providers": providers,
+        "quotaStatus": _provider_status["gemini"],
+        "providerStatus": {
+            name: (
+                "not_configured"
+                if not providers[name] and _provider_status[name] == "unknown"
+                else _provider_status[name]
+            )
+            for name in providers
+        },
     }
 
 
-@app.post("/chat")
+@app.post("/chat", dependencies=[Depends(verify_rag_service_token)])
 def chat(request: ChatRequest):
     if not request.question.strip():
         raise HTTPException(status_code=400, detail="Question cannot be empty.")
 
     try:
         rag = get_rag_chain()
+        llm = get_llm(request.provider)
         supplemental_context = [
             item.model_dump() for item in request.supplementalContext
         ]
@@ -166,18 +226,28 @@ def chat(request: ChatRequest):
             request.question,
             supplemental_context=supplemental_context,
             retrieve=request.scope != "my_vault",
+            llm=llm,
         )
-        return {"answer": answer, "sources": sources}
+        _provider_status[request.provider] = "ready"
+        return {
+            "answer": answer,
+            "sources": sources,
+            "retrievalMode": "vector+bm25" if _vectorstore is not None else "bm25",
+        }
     except FileNotFoundError as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
     except RuntimeError as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
     except APIError as error:
+        if getattr(error, "code", None) == 429 or "RESOURCE_EXHAUSTED" in str(error).upper():
+            _provider_status[request.provider] = "quota_exhausted"
         raise HTTPException(
             status_code=503,
-            detail=f"Gemini API request failed: {error}",
+            detail=f"{request.provider.title()} API request failed: {error}",
         ) from error
     except Exception as error:
+        if "429" in str(error) or "RESOURCE_EXHAUSTED" in str(error).upper():
+            _provider_status[request.provider] = "quota_exhausted"
         print(f"[RAG] Chat request failed: {error}", flush=True)
         raise HTTPException(
             status_code=503,

@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { timingSafeEqual } from 'crypto';
 import { getStore } from '../data/store.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'unibot_academic_jwt_secret_token_secure_2026';
@@ -17,6 +18,48 @@ const generateToken = (user) => {
     JWT_SECRET,
     { expiresIn: '7d' }
   );
+};
+
+const secureEquals = (provided, expected) => {
+  const providedBuffer = Buffer.from(provided);
+  const expectedBuffer = Buffer.from(expected);
+  return providedBuffer.length === expectedBuffer.length
+    && timingSafeEqual(providedBuffer, expectedBuffer);
+};
+
+export const adminLogin = async (req, res) => {
+  const username = process.env.ADMIN_USERNAME;
+  const password = process.env.ADMIN_PASSWORD;
+  if (!process.env.JWT_SECRET || !username || !password || password.length < 16) {
+    return res.status(503).json({
+      success: false,
+      message: 'Admin credentials are not configured securely on the server.',
+    });
+  }
+
+  const providedUsername = String(req.body?.username || '');
+  const providedPassword = String(req.body?.password || '');
+  const usernameMatches = secureEquals(providedUsername, username);
+  const passwordMatches = secureEquals(providedPassword, password);
+  if (!usernameMatches || !passwordMatches) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid administrator credentials.',
+    });
+  }
+
+  const user = {
+    id: 'configured-admin',
+    username,
+    email: username,
+    fullName: 'UniBot Administrator',
+    role: 'admin',
+  };
+  const token = jwt.sign(user, JWT_SECRET, { expiresIn: '12h' });
+  return res.json({
+    success: true,
+    data: { token, user },
+  });
 };
 
 export const register = async (req, res, next) => {
@@ -121,6 +164,22 @@ export const login = async (req, res, next) => {
 
 export const getMe = async (req, res, next) => {
   try {
+    if (
+      req.user.role === 'admin'
+      && req.user.username === process.env.ADMIN_USERNAME
+    ) {
+      return res.json({
+        success: true,
+        data: {
+          id: req.user.id,
+          username: req.user.username,
+          email: req.user.email,
+          fullName: req.user.fullName,
+          role: 'admin',
+        },
+      });
+    }
+
     const store = getStore();
     const user = await store.users.findById(req.user.id);
     if (!user) {

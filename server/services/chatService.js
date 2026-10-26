@@ -1,4 +1,5 @@
 import { getStore } from '../data/store.js';
+import { getActiveProvider } from './aiSettingsService.js';
 
 const getRagServiceUrl = () => {
   const configuredUrl = process.env.RAG_SERVICE_URL || 'http://localhost:8000';
@@ -12,6 +13,12 @@ const requestRag = async (path, options = {}, timeoutMs = 5000) => {
   try {
     return await fetch(`${getRagServiceUrl()}${path}`, {
       ...options,
+      headers: {
+        ...(process.env.RAG_SERVICE_TOKEN
+          ? { 'X-RAG-Service-Token': process.env.RAG_SERVICE_TOKEN }
+          : {}),
+        ...options.headers,
+      },
       signal: AbortSignal.timeout(timeoutMs),
     });
   } catch (error) {
@@ -24,22 +31,48 @@ export const getRagStatus = async () => {
   try {
     const response = await requestRag('/health');
     if (!response.ok) {
-      return { ready: false, mode: 'Unavailable', message: `RAG service returned HTTP ${response.status}` };
+      return {
+        ready: false,
+        mode: 'Unavailable',
+        message: `RAG service returned HTTP ${response.status}`,
+        providers: {},
+        providerStatus: {},
+      };
     }
 
     const status = await response.json();
+    const activeProvider = await getActiveProvider();
+    const activeProviderConfigured = status.providers?.[activeProvider] === true;
     return {
-      ready: status.ready === true,
-      mode: status.ready === true ? 'Active Vector Search + RAG LLM' : 'Unavailable',
-      message: status.message || '',
+      ready: status.ready === true && activeProviderConfigured,
+      mode: status.retrievalMode === 'bm25'
+        ? 'BM25 Retrieval + RAG LLM'
+        : status.ready === true && activeProviderConfigured
+          ? 'Active Vector Search + RAG LLM'
+          : 'Unavailable',
+      message: activeProviderConfigured
+        ? (status.message || '')
+        : `${activeProvider} is not configured with an API key in the RAG service.`,
+      activeProvider,
+      providers: status.providers || {},
+      retrievalMode: status.retrievalMode || 'unknown',
+      quotaStatus: status.quotaStatus || 'unknown',
+      providerStatus: status.providerStatus || {},
     };
   } catch (error) {
-    return { ready: false, mode: 'Unavailable', message: error.message };
+    return {
+      ready: false,
+      mode: 'Unavailable',
+      message: error.message,
+      providers: {},
+      providerStatus: {},
+    };
   }
 };
 
 export const generateContextualAnswer = async ({ prompt, userId, scope = 'all_resources', selectedSubject = '' }) => {
   const store = getStore();
+  const provider = await getActiveProvider();
   const supplementalContext = [];
   if (userId && scope === 'my_vault') {
     const userAssignments = await store.assignments.findByUser(userId);
@@ -80,6 +113,7 @@ export const generateContextualAnswer = async ({ prompt, userId, scope = 'all_re
       question: prompt,
       scope,
       selectedSubject,
+      provider,
       supplementalContext: scope === 'my_vault' ? supplementalContext : [],
     }),
   }, Number(process.env.RAG_REQUEST_TIMEOUT_MS) || 600000);
@@ -104,6 +138,8 @@ export const generateContextualAnswer = async ({ prompt, userId, scope = 'all_re
   return {
     answer: result.answer,
     citations,
-    ragMode: 'Active Vector Search + RAG LLM',
+    ragMode: result.retrievalMode === 'bm25'
+      ? 'BM25 Retrieval + RAG LLM'
+      : 'Active Vector Search + RAG LLM',
   };
 };

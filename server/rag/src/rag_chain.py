@@ -62,7 +62,7 @@ class RAGChain:
         self.llm = llm
         self.prompt = get_prompt()
 
-    def ask(self, question, supplemental_context=None, retrieve=True):
+    def ask(self, question, supplemental_context=None, retrieve=True, llm=None):
         documents = self.retriever.retrieve(question) if retrieve else []
         documents.extend(
             Document(
@@ -86,7 +86,7 @@ class RAGChain:
             question=question
         )
 
-        response = self.llm.invoke(messages)
+        response = (llm or self.llm).invoke(messages)
         content = response.content
         if isinstance(content, list):
             answer = "\n".join(

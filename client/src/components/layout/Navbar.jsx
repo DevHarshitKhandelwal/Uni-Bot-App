@@ -370,6 +370,13 @@ export const Navbar = ({ activeTab, setActiveTab }) => {
                 <MessageSquareText size={15} />
                 <span>StudyBot</span>
               </button>
+              <button
+                onClick={() => handleTabClick('admin')}
+                className={`mac-segmented-tab ${activeTab === 'admin' ? 'active' : ''}`}
+              >
+                <ShieldCheck size={15} />
+                <span>Admin</span>
+              </button>
             </div>
           </nav>
 
@@ -700,6 +707,28 @@ export const Navbar = ({ activeTab, setActiveTab }) => {
               >
                 <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <BookOpen size={16} style={{ color: 'var(--primary-blue)' }} /> Resource Hub
+                </span>
+                <ChevronRight size={14} style={{ opacity: 0.5 }} />
+              </button>
+
+              <button
+                onClick={() => handleTabClick('admin')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '11px 14px',
+                  borderRadius: 'var(--radius-md)',
+                  fontSize: '13.5px',
+                  fontWeight: 500,
+                  backgroundColor: activeTab === 'admin' ? '#E3F2FD' : 'transparent',
+                  color: activeTab === 'admin' ? 'var(--primary-navy)' : 'var(--text-main)',
+                  border: activeTab === 'admin' ? '1px solid var(--border-sky)' : 'none',
+                  textAlign: 'left',
+                }}
+              >
+                <span style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <ShieldCheck size={16} style={{ color: 'var(--primary-blue)' }} /> Admin
                 </span>
                 <ChevronRight size={14} style={{ opacity: 0.5 }} />
               </button>

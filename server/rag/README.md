@@ -12,12 +12,19 @@ limited to 75 requests per minute, and retried on Gemini quota responses. Free-t
 availability still depends on the Google AI Studio account and selected models.
 The HTTP service starts independently of index construction. `/health` reports
 `ready: false` and `retryAfterSeconds` when indexing must wait for quota to reset.
+If Gemini embedding quota is exhausted, the service still loads the documents and
+uses BM25 retrieval. Chat generation can use either Gemini or OpenAI when their
+respective API keys are configured in the service environment.
+The `/chat` endpoint requires the shared `RAG_SERVICE_TOKEN`; keep it configured as a
+secret in both the API and RAG service environments.
 
 Start the application with `docker compose up --build`. The Node backend sends chatbot
 requests to the RAG service over the Compose network. `/api/health` reports whether the
-Gemini client and knowledge base are ready. Chat requests return an explicit error if the
-API key, documents, or RAG service is unavailable; they do not fall back to canned answers.
+selected provider and knowledge base are ready. Chat requests return an explicit error if
+the provider, documents, or RAG service is unavailable; they do not fall back to canned
+answers.
 
 For local development, run `uvicorn src.api:app --host 0.0.0.0 --port 8000` from
-`rag/Uni-Bot`. The service loads `GEMINI_API_KEY` from `server/.env`; set
+`server/rag`. The service loads `GEMINI_API_KEY` and `RAG_SERVICE_TOKEN` from
+`server/.env`; set the same `RAG_SERVICE_TOKEN` and
 `RAG_SERVICE_URL=http://localhost:8000` in the Node backend environment.

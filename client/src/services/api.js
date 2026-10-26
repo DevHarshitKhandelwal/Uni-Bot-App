@@ -62,6 +62,31 @@ export const api = {
     }
   },
 
+  admin: {
+    login: async (username, password) => {
+      const res = await fetch(`${API_BASE}/admin/login`, {
+        method: 'POST',
+        headers: getHeaders(),
+        body: JSON.stringify({ username, password }),
+      });
+      return handleResponse(res);
+    },
+    getAiSettings: async () => {
+      const res = await fetch(`${API_BASE}/admin/ai`, {
+        headers: getHeaders(),
+      });
+      return handleResponse(res);
+    },
+    setAiProvider: async (provider) => {
+      const res = await fetch(`${API_BASE}/admin/ai/provider`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ provider }),
+      });
+      return handleResponse(res);
+    },
+  },
+
   // Resources (Academic Hub)
   resources: {
     getAll: async (params = {}) => {
