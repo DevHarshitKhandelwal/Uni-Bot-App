@@ -11,7 +11,7 @@ export const sendMessage = async (req, res, next) => {
     const userId = req.user ? req.user.id : 'guest_student';
     const store = getStore();
 
-    // 1. Generate Contextual answer with citations
+    // 1. Generate an answer through the RAG service.
     const { answer, citations, ragMode } = await generateContextualAnswer({
       prompt,
       userId,

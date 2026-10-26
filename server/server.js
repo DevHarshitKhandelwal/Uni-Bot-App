@@ -11,6 +11,7 @@ import resourceRoutes from './routes/resourceRoutes.js';
 import assignmentRoutes from './routes/assignmentRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import { errorHandler } from './middleware/errorHandler.js';
+import { getRagStatus } from './services/chatService.js';
 
 dotenv.config();
 
@@ -32,15 +33,17 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/uploads', express.static(getUploadsPath()));
 
 // Health & System Info endpoint
-app.get('/api/health', (req, res) => {
+app.get('/api/health', async (req, res) => {
   const dbStatus = getDBStatus();
+  const ragStatus = await getRagStatus();
   res.json({
     status: 'ok',
     app: 'UniBot Academic Platform',
     version: '1.0.0',
     database: dbStatus.type,
-    ragReady: true,
-    ragCurrentMode: process.env.RAG_ENABLED === 'true' ? 'Active Vector Search' : 'Contextual File Search (RAG Pluggable)',
+    ragReady: ragStatus.ready,
+    ragCurrentMode: ragStatus.mode,
+    ragMessage: ragStatus.message,
     timestamp: new Date(),
   });
 });
@@ -58,6 +61,6 @@ app.listen(PORT, () => {
   console.log(`=======================================================`);
   console.log(`🎓 UniBot Backend Running on http://localhost:${PORT}`);
   console.log(`📁 Uploads served from: ${getUploadsPath()}`);
-  console.log(`🤖 Contextual Assistant: Active (Ready for RAG expansion)`);
+  console.log(`🤖 RAG service: ${process.env.RAG_SERVICE_URL || 'http://localhost:8000'}`);
   console.log(`=======================================================`);
 });

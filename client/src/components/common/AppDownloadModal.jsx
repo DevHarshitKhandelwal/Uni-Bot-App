@@ -18,8 +18,7 @@ export const AppDownloadModal = ({ isOpen, onClose }) => {
   const [installPrompt, setInstallPrompt] = useState(null);
   const [isInstalled, setIsInstalled] = useState(false);
 
-  // Local Wi-Fi Network Address
-  const localNetworkUrl = `http://10.114.107.3:5173`;
+  const localNetworkUrl = import.meta.env.VITE_LOCAL_NETWORK_URL || window.location.origin;
 
   useEffect(() => {
     const handleBeforeInstall = (e) => {
@@ -147,7 +146,7 @@ export const AppDownloadModal = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Action 1: Android APK Download */}
+          {/* Action 1: Install as a real app on Android / mobile browser */}
           <div style={{
             backgroundColor: '#FFFFFF',
             borderRadius: '14px',
@@ -170,21 +169,21 @@ export const AppDownloadModal = ({ isOpen, onClose }) => {
                   fontWeight: 800,
                   fontSize: '18px',
                 }}>
-                  APK
+                  APP
                 </div>
                 <div>
                   <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'var(--text-main)' }}>
-                    Download Android APK
+                    Install UniBot on your phone
                   </h4>
                   <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
-                    Standalone application package for Android phones & tablets
+                    Use the browser install flow for a real app experience on Android or iPhone.
                   </p>
                 </div>
               </div>
 
-              <a
-                href="/downloads/unibot.apk"
-                download="unibot.apk"
+              <button
+                type="button"
+                onClick={handleInstallClick}
                 className="btn btn-primary"
                 style={{
                   padding: '9px 18px',
@@ -196,8 +195,8 @@ export const AppDownloadModal = ({ isOpen, onClose }) => {
                 }}
               >
                 <Download size={15} />
-                <span>Download APK File</span>
-              </a>
+                <span>Install App</span>
+              </button>
             </div>
 
             <div style={{
@@ -209,11 +208,11 @@ export const AppDownloadModal = ({ isOpen, onClose }) => {
               lineHeight: 1.5,
               borderLeft: '3px solid var(--primary-blue)',
             }}>
-              <strong>Android Installation Steps:</strong>
+              <strong>Install Steps:</strong>
               <ol style={{ margin: '6px 0 0 18px', padding: 0 }}>
-                <li>Tap <strong>Download APK File</strong> above to save `unibot.apk` locally.</li>
-                <li>Tap the download completion notification or find it in your Downloads folder.</li>
-                <li>Select <strong>Install</strong> (if asked, allow "Install from unknown sources" for this file).</li>
+                <li>Open this app in Chrome on Android or Safari on iPhone.</li>
+                <li>Tap the menu button (⋮ on Android / Share on iPhone).</li>
+                <li>Choose <strong>Add to Home Screen</strong> or <strong>Install App</strong>.</li>
               </ol>
             </div>
           </div>
@@ -266,6 +265,60 @@ export const AppDownloadModal = ({ isOpen, onClose }) => {
                 <span>{isInstalled ? 'App Already Installed' : 'Install App Directly'}</span>
               </button>
             </div>
+          </div>
+
+          <div style={{
+            backgroundColor: '#FFFFFF',
+            borderRadius: '14px',
+            border: '1px solid var(--border-sky)',
+            padding: '18px',
+            marginBottom: '16px',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '10px',
+                  backgroundColor: '#E8F5E9',
+                  color: '#2E7D32',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}>
+                  <Smartphone size={22} />
+                </div>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 700, color: 'var(--text-main)' }}>
+                    Download Android APK
+                  </h4>
+                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: 'var(--text-muted)' }}>
+                    Install the Android app directly on your phone.
+                  </p>
+                </div>
+              </div>
+              <a
+                href="/downloads/unibot.apk"
+                download="UniBot.apk"
+                className="btn btn-primary"
+                style={{
+                  padding: '9px 18px',
+                  fontSize: '13px',
+                  fontWeight: 600,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  textDecoration: 'none',
+                }}
+              >
+                <Download size={15} />
+                <span>Download APK</span>
+              </a>
+            </div>
+            <p style={{ margin: '12px 0 0', fontSize: '12px', color: 'var(--text-muted)', lineHeight: 1.5 }}>
+              For this local build, keep your phone on the same Wi-Fi as this computer.
+              Android may ask you to allow app installs from your browser.
+            </p>
           </div>
 
           {/* Action 3: Live Wi-Fi Mobile URL */}
