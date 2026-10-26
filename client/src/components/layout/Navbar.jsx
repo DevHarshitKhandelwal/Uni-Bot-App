@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   BookOpen,
   FolderLock,
-  GraduationCap,
   LogOut,
   MessageSquareText,
   MoreHorizontal,
@@ -25,6 +24,7 @@ const navigationItems = [
 export const Navbar = ({ activeTab, setActiveTab }) => {
   const { user, isAuthenticated, logout, openAuth } = useAuth();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [bouncingTab, setBouncingTab] = useState(null);
   const [isAppDownloadOpen, setIsAppDownloadOpen] = useState(false);
   const [isSpotlightOpen, setIsSpotlightOpen] = useState(false);
 
@@ -45,6 +45,8 @@ export const Navbar = ({ activeTab, setActiveTab }) => {
   const selectTab = (tab) => {
     setActiveTab(tab);
     setMoreOpen(false);
+    setBouncingTab(tab);
+    window.setTimeout(() => setBouncingTab(null), 500);
   };
 
   const openSearch = () => {
@@ -59,70 +61,65 @@ export const Navbar = ({ activeTab, setActiveTab }) => {
 
   return (
     <>
-      <nav className="app-bottom-nav" aria-label="Main navigation">
-        <button
-          type="button"
-          className="app-nav-brand"
-          onClick={() => selectTab('resources')}
-          aria-label="UniBot home"
-        >
-          <span className="app-nav-brand-icon"><GraduationCap size={19} /></span>
-          <span className="app-nav-brand-name">UniBot</span>
-        </button>
-
-        <div className="app-nav-links">
+      <nav className="app-dock" aria-label="Main navigation">
+        <div className="app-dock-links">
           {navigationItems.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               type="button"
-              className={`app-nav-item${activeTab === id ? ' active' : ''}`}
+              className={`app-dock-item${activeTab === id ? ' active' : ''}${bouncingTab === id ? ' dock-bounce' : ''}`}
               onClick={() => selectTab(id)}
               aria-current={activeTab === id ? 'page' : undefined}
+              aria-label={label}
+              title={label}
             >
-              <Icon size={18} aria-hidden="true" />
-              <span>{label}</span>
+              <Icon size={22} aria-hidden="true" />
+              {activeTab === id && <span className="app-dock-dot" />}
+              {!isAuthenticated && id === 'vault' && <span className="app-dock-badge" />}
+              <span className="app-dock-tooltip">{label}</span>
             </button>
           ))}
         </div>
 
-        <div className="app-nav-actions">
+        <span className="app-dock-divider" aria-hidden="true" />
+
+        <div className="app-dock-actions">
           <button
             type="button"
-            className="app-nav-action app-nav-search"
+            className="app-dock-item app-dock-search"
             onClick={openSearch}
             aria-label="Search"
             title="Search (Ctrl+K)"
           >
             <Search size={18} />
-            <span>Search</span>
+            <span className="app-dock-tooltip">Search</span>
           </button>
           <button
             type="button"
-            className="app-nav-action app-nav-download"
+            className="app-dock-item app-dock-download"
             onClick={openDownload}
             aria-label="Download the mobile app"
             title="Download app"
           >
             <Smartphone size={18} />
-            <span>Get App</span>
+            <span className="app-dock-tooltip">Get App</span>
           </button>
 
           <div className="app-nav-more-wrap">
             <button
               type="button"
-              className={`app-nav-action app-nav-more${moreOpen ? ' active' : ''}`}
+              className={`app-dock-item app-nav-more${moreOpen ? ' active' : ''}`}
               onClick={() => setMoreOpen((open) => !open)}
               aria-expanded={moreOpen}
               aria-haspopup="menu"
               aria-label="More options"
+              title="Account"
             >
               {isAuthenticated && user?.avatarUrl
                 ? <img className="app-nav-avatar" src={user.avatarUrl} alt="" />
                 : <MoreHorizontal size={20} />}
-              <span className="app-nav-more-label">
-                {isAuthenticated && user?.fullName
-                  ? user.fullName.split(' ')[0]
-                  : 'More'}
+              <span className="app-dock-tooltip">
+                {isAuthenticated && user?.fullName ? user.fullName.split(' ')[0] : 'Account'}
               </span>
             </button>
 
@@ -168,7 +165,7 @@ export const Navbar = ({ activeTab, setActiveTab }) => {
                         role="menuitem"
                         onClick={() => { openAuth('register'); setMoreOpen(false); }}
                       >
-                        <GraduationCap size={16} />
+                        <UserRound size={16} />
                         <span>Create account</span>
                       </button>
                     </>
